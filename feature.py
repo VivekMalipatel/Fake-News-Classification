@@ -7,34 +7,33 @@ from sklearn.preprocessing import StandardScaler
 train_df = pd.read_csv('train.csv')
 test_df = pd.read_csv('test.csv')
 
-# Combine the preprocessed text features
-train_df['combined'] = train_df['title1_en_clean'] + ' ' + train_df['title2_en_clean']
-test_df['combined'] = test_df['title1_en_clean'] + ' ' + test_df['title2_en_clean']
-train_df.dropna(subset=['combined'], inplace=True)
-test_df.dropna(subset=['combined'], inplace=True)
+def create_features(df):
 
-# Create the count vectorizer and fit on the combined text features
-count_vect = CountVectorizer()
-count_vect.fit(train_df['combined'])
+    df.dropna(inplace=True)
+    
+    # Define the vectorizers
+    count_vec = CountVectorizer(analyzer='word', ngram_range=(1,2), max_features=5000)
+    tfidf_vec = TfidfVectorizer(analyzer='word', ngram_range=(1,2), max_features=5000)
+    
+    # Create bag-of-words features
+    title1_count = count_vec.fit_transform(df['title1_en_clean'])
+    title2_count = count_vec.transform(df['title2_en_clean'])
+    title1_tfidf = tfidf_vec.fit_transform(df['title1_en_clean'])
+    title2_tfidf = tfidf_vec.transform(df['title2_en_clean'])
+    
+    # Compute additional features
+    title1_len = df['title1_en_clean'].apply(len)
+    title2_len = df['title2_en_clean'].apply(len)
+    len_diff = (title1_len - title2_len).apply(abs)
+    len_ratio = (np.maximum(title1_len, title2_len) / np.minimum(title1_len, title2_len))
+    
+    # Combine the features into a single array
+    features = np.hstack((title1_count.toarray(), title2_count.toarray(),
+                          title1_tfidf.toarray(), title2_tfidf.toarray(),
+                          title1_len.values.reshape(-1,1), title2_len.values.reshape(-1,1),
+                          len_diff.values.reshape(-1,1), len_ratio.values.reshape(-1,1)))
+    
+    return features
 
-# Create the TF-IDF vectorizer and fit on the combined text features
-tfidf_vect = TfidfVectorizer()
-tfidf_vect.fit(train_df['combined'])
-
-# Create the bag-of-words features using the count vectorizer
-train_count_features = count_vect.transform(train_df['combined'])
-test_count_features = count_vect.transform(test_df['combined'])
-
-# Create the TF-IDF features using the TF-IDF vectorizer
-train_tfidf_features = tfidf_vect.transform(train_df['combined'])
-test_tfidf_features = tfidf_vect.transform(test_df['combined'])
-
-# Scale the numeric features
-scaler = StandardScaler()
-scaler.fit(train_df[['tid1', 'tid2']])
-train_numeric_features = scaler.transform(train_df[['tid1', 'tid2']])
-test_numeric_features = scaler.transform(test_df[['tid1', 'tid2']])
-
-# Combine the features
-train_features = np.hstack((train_count_features.toarray(), train_tfidf_features.toarray(), train_numeric_features))
-test_features = np.hstack((test_count_features.toarray(), test_tfidf_features.toarray(), test_numeric_features))
+train_features = create_features(train_df)
+test_features = create_features(test_df)
