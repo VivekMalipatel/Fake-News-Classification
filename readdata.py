@@ -1,12 +1,11 @@
 import pandas as pd
 import re
-import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 
 # Load the train and test CSV files
-train_df = pd.read_csv('/Users/vivekmalipatel/Library/CloudStorage/GoogleDrive-vmalipatel@hawk.iit.edu/My Drive/OSNA/Assignments/Project2/option1-data/train.csv')
-test_df = pd.read_csv('/Users/vivekmalipatel/Library/CloudStorage/GoogleDrive-vmalipatel@hawk.iit.edu/My Drive/OSNA/Assignments/Project2/option1-data/test.csv')
+train_df = pd.read_csv('train_original.csv')
+test_df = pd.read_csv('test_original.csv')
 
 # Check for missing values, duplicates, and any other data quality issues
 print(train_df.isnull().sum()) # check for missing values in train data
@@ -31,7 +30,9 @@ def clean_text(text):
 
 train_df['title1_en_clean'] = train_df['title1_en'].apply(clean_text)
 train_df['title2_en_clean'] = train_df['title2_en'].apply(clean_text)
+train_df = train_df[(train_df['title1_en_clean'].str.strip() != '') & (train_df['title2_en_clean'].str.strip() != '')]
 train_df.to_csv('train.csv')
 test_df['title1_en_clean'] = test_df['title1_en'].apply(clean_text)
 test_df['title2_en_clean'] = test_df['title2_en'].apply(clean_text)
+test_df = test_df[(test_df['title1_en_clean'].str.strip() != '') & (test_df['title2_en_clean'].str.strip() != '')]
 test_df.to_csv('test.csv')
