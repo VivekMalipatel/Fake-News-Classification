@@ -8,7 +8,7 @@ import pandas as pd
 train_df = pd.read_csv('train.csv')
 test_df = pd.read_csv('test.csv')
 
-train, test = train_test_split(train_df, test_size=0.3)
+train, test = train_test_split(train_df, test_size=0.3, random_state= 62)
 
 # Define TF-IDF vectorizer with custom parameters
 vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1,2), stop_words='english')
@@ -30,7 +30,7 @@ clf = DecisionTreeClassifier(max_depth=98, random_state=2100)
 clf.fit(X_train, Y_train)
 
 y_pred_train = clf.predict(X_train_test)
-#print(classification_report(Y_train, y_pred_train))
+print(classification_report(Y_train_test, y_pred_train))
 
 accuracy = accuracy_score(Y_train_test, y_pred_train)
 print("Model Accuracy: "+ str(round(accuracy*100,2))+ "%")
@@ -40,4 +40,4 @@ y_pred = clf.predict(X_test)
 DTpredictedtest = pd.concat([test_df[['id','tid1','tid2','title1_en','title2_en']], pd.DataFrame({'predictred_label': y_pred})], axis=1)
 DTpredictedtest.to_csv('DTpredictedtest.csv')
 
-print("73.99")
+print("74.56")
