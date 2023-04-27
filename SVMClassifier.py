@@ -3,6 +3,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 import pandas as pd
 
 train_df = pd.read_csv('train.csv')
@@ -29,9 +30,10 @@ svm = SVC(kernel='rbf', random_state=42)
 svm.fit(X_train, Y_train)
 
 y_pred_train = svm.predict(X_train_test)
-#print(classification_report(Y_train, y_pred_train))
+print(classification_report(Y_train, y_pred_train))
 
 accuracy = accuracy_score(Y_train_test, y_pred_train)
+print(confusion_matrix(Y_train_test, y_pred_train))
 print("Model Accuracy: "+ str(round(accuracy*100,2))+ "%")
 
 # Predict labels for test data using the trained classifier
