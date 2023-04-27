@@ -30,7 +30,7 @@ svm = SVC(kernel='rbf', random_state=42)
 svm.fit(X_train, Y_train)
 
 y_pred_train = svm.predict(X_train_test)
-print(classification_report(Y_train, y_pred_train))
+print(classification_report(Y_train_test, y_pred_train))
 
 accuracy = accuracy_score(Y_train_test, y_pred_train)
 print(confusion_matrix(Y_train_test, y_pred_train))
